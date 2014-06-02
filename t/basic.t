@@ -13,10 +13,10 @@ use Test::Fatal;
 {
   my $o = ClonableBasic->new(foo => 1, bar => 2);
   my $o2 = $o->but(foo => 5);
-  is $o->foo, 1;
-  is $o->bar, 2;
-  is $o2->foo, 5;
-  is $o2->bar, 2;
+  is $o->foo, 1, 'initial attribute unmodified';
+  is $o->bar, 2, 'initial attribute unmodified';
+  is $o2->foo, 5, 'cloned attribute overwritten';
+  is $o2->bar, 2, 'cloned attribute copied';
 }
 
 {
@@ -30,8 +30,8 @@ use Test::Fatal;
 {
   my $o = ClonableDeep->new(foo => {}, bar => {});
   my $o2 = $o->but;
-  is $o->foo, $o2->foo;
-  isnt $o->bar, $o2->bar;
+  is $o->foo, $o2->foo, 'normal cloned attribute uses same reference';
+  isnt $o->bar, $o2->bar, 'deep cloned attribute gets new reference';
 }
 
 {
@@ -45,10 +45,10 @@ use Test::Fatal;
 {
   my $o = ClonableNoClone->new(foo => 1, bar => 2);
   my $o2 = $o->but(foo => 5);
-  is $o->foo, 1;
-  is $o->bar, 2;
-  is $o2->foo, 5;
-  is $o2->bar, undef;
+  is $o->foo, 1, 'initial attribute unmodified';
+  is $o->bar, 2, 'initial unclonable attribute unmodified';
+  is $o2->foo, 5, 'cloned attribute overwritten';
+  is $o2->bar, undef, 'unclonable attribute unset';
 }
 
 {
@@ -61,7 +61,8 @@ use Test::Fatal;
 
 {
   my $o = ClonableRequired->new(foo => 1, bar => 2);
-  like exception { $o->but }, qr/Missing required arguments: bar at/;
+  like exception { $o->but }, qr/Missing required arguments: bar at/,
+    'unclonable required attribute must be provided on clone';
 }
 
 done_testing;
