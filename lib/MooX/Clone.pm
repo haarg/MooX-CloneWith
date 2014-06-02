@@ -14,10 +14,15 @@ sub import {
     die "MooX::Clone can only be used on Moo classes.";
   }
 
-  my $c = Moo::Role->apply_roles_to_object(
-    Moo->_constructor_maker_for($target),
-    'Method::Generate::Constructor::Role::WithClone',
-  )->install_delayed_clone;
+  my $c = Moo->_constructor_maker_for($target);
+
+  my $role = !@opts ? 'Method::Generate::Constructor::Role::WithClone' : do {
+    require Method::Generate::Constructor::Role::WithClone::Variant;
+    Method::Generate::Constructor::Role::WithClone::Variant->build_variant(@opts);
+  };
+
+  Moo::Role->apply_roles_to_object($c, $role);
+  $c->install_delayed_clone;
 }
 
 1;
