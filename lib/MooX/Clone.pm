@@ -71,6 +71,11 @@ The arguments passed to C<< ->but >> are processed by C<BUILDARGS> just like
 arguments to C<new> are.  If the class has a C<BUILDARGS> method, it will have
 to be written to account for this.
 
+=item * Only works with full Moo classes
+
+The but method provided will not work properly if the class inherits from a
+non-Moo class, or for subclasses that use Moose.
+
 =back
 
 =head1 AUTHOR
