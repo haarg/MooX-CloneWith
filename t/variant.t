@@ -4,7 +4,7 @@ use Test::More;
 {
   package ClonableRenamed;
   use Moo;
-  use MooX::Clone method => 'another';
+  use MooX::CloneWith method => 'another';
   has foo => (is => 'ro');
   has bar => (is => 'ro');
 }

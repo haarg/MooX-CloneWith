@@ -5,7 +5,7 @@ use Test::Fatal;
 {
   package ClonableBasic;
   use Moo;
-  use MooX::Clone;
+  use MooX::CloneWith;
   has foo => (is => 'ro');
   has bar => (is => 'ro');
 }
@@ -22,7 +22,7 @@ use Test::Fatal;
 {
   package ClonableDeep;
   use Moo;
-  use MooX::Clone;
+  use MooX::CloneWith;
   has foo => (is => 'ro');
   has bar => (is => 'ro', clone => 'deep');
 }
@@ -37,7 +37,7 @@ use Test::Fatal;
 {
   package ClonableNoClone;
   use Moo;
-  use MooX::Clone;
+  use MooX::CloneWith;
   has foo => (is => 'ro');
   has bar => (is => 'ro', clone => 0);
 }
@@ -54,7 +54,7 @@ use Test::Fatal;
 {
   package ClonableRequired;
   use Moo;
-  use MooX::Clone;
+  use MooX::CloneWith;
   has foo => (is => 'ro', required => 1);
   has bar => (is => 'ro', clone => 0, required => 1);
 }

@@ -3,7 +3,7 @@ use warnings FATAL => 'all';
 use 5.006;
 
 my %META = (
-  name => 'MooX-Clone',
+  name => 'MooX-CloneWith',
   license => 'perl_5',
   prereqs => {
     configure => { requires => { } },
@@ -22,13 +22,13 @@ my %META = (
   },
   resources => {
     repository => {
-      url => 'git://github.com/haarg/MooX-Clone',
-      web => 'http://github.com/haarg/MooX-Clone',
+      url => 'git://github.com/haarg/MooX-CloneWith',
+      web => 'http://github.com/haarg/MooX-CloneWith',
       type => 'git',
     },
     bugtracker => {
-      mailto => 'bug-MooX-Clone@rt.cpan.org',
-      web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=MooX-Clone',
+      mailto => 'bug-MooX-CloneWith@rt.cpan.org',
+      web => 'https://rt.cpan.org/Public/Dist/Display.html?Name=MooX-CloneWith',
     },
     license => [ 'http://dev.perl.org/licenses/' ],
   },

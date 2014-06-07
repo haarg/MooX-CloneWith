@@ -1,4 +1,4 @@
-package MooX::Clone;
+package MooX::CloneWith;
 use strictures 1;
 
 our $VERSION = '0.001000';
@@ -11,14 +11,14 @@ sub import {
   my ($class, @opts) = @_;
   my $target = caller;
   unless ($Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class}) {
-    die "MooX::Clone can only be used on Moo classes.";
+    die "MooX::CloneWith can only be used on Moo classes.";
   }
 
   my $c = Moo->_constructor_maker_for($target);
 
-  my $role = !@opts ? 'Method::Generate::Constructor::Role::WithClone' : do {
-    require Method::Generate::Constructor::Role::WithClone::Variant;
-    Method::Generate::Constructor::Role::WithClone::Variant->build_variant(@opts);
+  my $role = !@opts ? 'Method::Generate::Constructor::Role::CloneWith' : do {
+    require Method::Generate::Constructor::Role::CloneWith::Variant;
+    Method::Generate::Constructor::Role::CloneWith::Variant->build_variant(@opts);
   };
 
   Moo::Role->apply_roles_to_object($c, $role);
@@ -30,13 +30,13 @@ __END__
 
 =head1 NAME
 
-MooX::Clone - Provide a method for cloning Moo objects
+MooX::CloneWith - Provide a method for cloning Moo objects
 
 =head1 SYNOPSIS
 
   package ClonableClass;
   use Moo;
-  use MooX::Clone;
+  use MooX::CloneWith;
 
   has attr1 => (is => 'ro');
   has attr2 => (is => 'ro', clone => 0);
@@ -44,7 +44,7 @@ MooX::Clone - Provide a method for cloning Moo objects
   has attr4 => (is => 'ro', clone => 0, required => 1);
 
   my $o = ClonableClass->new(attr1 => 1, attr2 => 2, attr3 => {}, attr4 => 4);
-  my $o2 = $o->but(attr4 => 5);
+  my $o2 = $o->clone_with(attr4 => 5);
   # attr1 will be 1
   # attr2 will be unset
   # attr3 will have a new hashref with the same content as $o->attr3
@@ -54,11 +54,11 @@ MooX::Clone - Provide a method for cloning Moo objects
   # use alternate method name
   package ClonableClassRenamed;
   use Moo;
-  use MooX::Clone method => 'clone';
+  use MooX::CloneWith method => 'but';
 
 =head1 DESCRIPTION
 
-MooX::Clone provides a method that will clone an object, while setting new
+C<MooX::CloneWith> provides a method that will clone an object, while setting new
 attribute values.
 
 =head1 CAVEATS
@@ -67,7 +67,7 @@ attribute values.
 
 =item * New attributes are processed by BUILDARGS
 
-The arguments passed to C<< ->but >> are processed by C<BUILDARGS> just like
+The arguments passed to C<< ->clone_with >> are processed by C<BUILDARGS> just like
 arguments to C<new> are.  If the class has a C<BUILDARGS> method, it will have
 to be written to account for this.
 
@@ -88,7 +88,7 @@ None so far.
 
 =head1 COPYRIGHT
 
-Copyright (c) 2014 the MooX::Clone L</AUTHOR> and L</CONTRIBUTORS>
+Copyright (c) 2014 the MooX::CloneWith L</AUTHOR> and L</CONTRIBUTORS>
 as listed above.
 
 =head1 LICENSE

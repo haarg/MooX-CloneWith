@@ -1,4 +1,4 @@
-package Method::Generate::Constructor::Role::WithClone::Variant;
+package Method::Generate::Constructor::Role::CloneWith::Variant;
 use strictures 1;
 
 use Package::Variant 1.002
@@ -12,7 +12,7 @@ sub make_variant {
   my $clone_method = $args{method};
 
   install clone_method => sub { $clone_method };
-  with 'Method::Generate::Constructor::Role::WithClone';
+  with 'Method::Generate::Constructor::Role::CloneWith';
 }
 
 1;
