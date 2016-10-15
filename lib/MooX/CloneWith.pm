@@ -2,7 +2,7 @@ package MooX::CloneWith;
 use strictures 1;
 
 our $VERSION = '0.001000';
-$VERSION = eval $VERSION;
+$VERSION =~ tr/_//d;
 
 use Moo ();
 use Moo::Role ();
