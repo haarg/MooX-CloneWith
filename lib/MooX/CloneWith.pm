@@ -6,15 +6,14 @@ $VERSION =~ tr/_//d;
 
 use Moo ();
 use Moo::Role ();
+use Carp;
 
 sub import {
   my ($class, @opts) = @_;
   my $target = caller;
-  unless ($Moo::MAKERS{$target} && $Moo::MAKERS{$target}{is_class}) {
-    die "MooX::CloneWith can only be used on Moo classes.";
-  }
 
-  my $c = Moo->_constructor_maker_for($target);
+  my $c = Moo->_constructor_maker_for($target)
+    or croak "MooX::CloneWith can only be used on Moo classes.";
 
   my $role = !@opts ? 'MooX::CloneWith::Role::GenerateConstructor' : do {
     require MooX::CloneWith::Role::GenerateConstructor::Variant;
