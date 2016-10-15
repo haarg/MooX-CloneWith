@@ -5,11 +5,19 @@ use Carp;
 use Moo::Role;
 
 sub clone_method { 'clone_with' }
-sub default_clone_type { 'copy' }
+sub clone_accessor_generator_role { 'MooX::CloneWith::Role::GenerateAccessor' }
 
 after install_delayed => sub {
   my ($self) = @_;
   $self->install_delayed_clone;
+};
+
+before register_attribute_specs => sub {
+  my $self = shift;
+  my $ag = $self->accessor_generator;
+  my $ag_role = $self->clone_accessor_generator_role;
+  Moo::Role->apply_roles_to_object($ag, $ag_role)
+    unless $ag->does($ag_role);
 };
 
 sub install_delayed_clone {
@@ -25,9 +33,10 @@ sub install_delayed_clone {
 
 sub _required_clone_spec {
   my ($self, $spec) = @_;
+  my $ag = $self->accessor_generator;
   +{
-    map {; $_ => $spec->{$_} }
-    grep !$self->_clone_type($spec->{$_}),
+    map +($_ => $spec->{$_}),
+    grep !$ag->_is_clonable($spec->{$_}),
     keys %$spec
   }
 }
@@ -59,102 +68,18 @@ sub _generate_clone_method {
 
 sub _assign_clone {
   my ($self, $spec, $from, $to, $source) = @_;
-  my %test;
-  NAME: foreach my $name (sort keys %$spec) {
-    my $attr_spec = $spec->{$name};
-    next
-      unless $self->_clone_type($attr_spec);
-    $test{$name} = $attr_spec;
-  }
-  join '', map {
-    my $attr_spec = $test{$_};
-    my $test_arg = exists $attr_spec->{init_arg} ? $attr_spec->{init_arg} : $_;
-    my $test = (defined $test_arg ? '!exists '.$source.'->{'.quotify($test_arg).'}' : undef);
-    $self->_generate_attr_clone($from, $to, $_, $attr_spec, $test, $test_arg);
-  } sort keys %test;
-}
-
-# the rest of this should probably be on an accessor generator role
-sub _generate_attr_clone {
-  my ($self, $from, $to, $attr, $spec, $test, $test_arg) = @_;
   my $ag = $self->accessor_generator;
-  my $type = $self->_clone_type($spec);
-  $test = ($test ? "$test && " : '')
-    . $ag->_generate_simple_has($from, $_);
-  my $source = $self->_generate_clone_type($attr,
-    $ag->_generate_simple_get($from, $attr), $type);
-  my $set = $ag->_generate_simple_set($to, $attr, $spec, $source);
-  "($test and $set),\n";
-}
-
-sub _generate_clone_type {
-  my ($self, $attr, $source, $type) = @_;
-  if ($type eq 'copy') {
-    return $source;
-  }
-  elsif (ref $type && eval { \&$type }) {
-  }
-  elsif ($self->can(my $method = '_generate_clone_type_'.$type)) {
-    $type = $self->$method($attr);
-  }
-  else {
-    croak "Unknown clone type $type for $attr";
-  }
-  my $var = '$_clone_captures_for_'.sanitize_identifier($attr);
-  $self->{captures}{$var} = \$type;
-  return $var.'->('.$source.')';
-}
-
-sub _generate_clone_type_clone {
-  my ($self, $attr) = @_;
-  my $clone_method = $self->clone_method;
-  sub {
-    my $v = shift;
-    my $vtype = ref $v;
-    return
-        !$vtype ? $v
-      : $vtype eq "Regexp" ? $v
-      : Scalar::Util::blessed($v) ? (
-          ( $clone_method ne 'clone_with' && $v->can($clone_method) ) ? $v->$clone_method
-        : $v->can("clone_with")  ? $v->clone_with
-        : $v->can("clone")       ? $v->clone
-        : ($v->can("STORABLE_freeze") && $v->can("STORABLE_thaw"))
-          ? ((require Storable), Storable::dclone($v))
-        : Carp::croak("Can't clone attribute $attr: $v")
-      )
-      : $vtype eq "ARRAY" ? [@$v]
-      : $vtype eq "HASH"  ? {%$v}
-      : ($vtype eq "SCALAR" || $vtype eq "REF" || $vtype eq "VSTRING" || $vtype eq "LVALUE")
-        ? \(my ($c) = $$v)
-      : $v;
-  };
-}
-
-sub _generate_clone_type_deep {
-  my ($self, $attr) = @_;
-  my $clone = $self->_generate_clone_type_clone($attr);
-  sub {
-    my $vo = shift;
-    my @clone = (\$vo);
-    while (my $vref = pop @clone) {
-      my $v = $$vref = $clone->($$vref);
-      my $vtype = ref $v;
-      push @clone,
-        Scalar::Util::blessed($v) ? ()
-        : $vtype eq "ARRAY" ? \(@$v)
-        : $vtype eq "HASH"  ? \(values %$v)
-        : $vtype eq "REF"   ? $v
-        : ();
+  join '',
+    map {
+      my $attr_spec = $spec->{$_};
+      my $test_arg = exists $attr_spec->{init_arg} ? $attr_spec->{init_arg} : $_;
+      my $test = (defined $test_arg ? '!exists '.$source.'->{'.quotify($test_arg).'}' : undef);
+      $self->_cap_call(
+        $ag->generate_clone($from, $to, $_, $attr_spec, $test, $test_arg)
+      );
     }
-    $vo;
-  };
-}
-
-sub _clone_type {
-  my ($self, $spec) = @_;
-  exists $spec->{clone} ? (
-    (($spec->{clone}||0) eq 1) ? 'copy' : $spec->{clone}
-  ) : $self->default_clone_type;
+    grep $ag->_is_clonable($spec->{$_}),
+    sort keys %$spec;
 }
 
 1;

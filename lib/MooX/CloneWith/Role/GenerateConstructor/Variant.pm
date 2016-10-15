@@ -8,11 +8,18 @@ use Package::Variant 1.002
 ;
 
 sub make_variant {
-  my ($class, $target_package, %args) = @_;
+  my ($class, $target, %args) = @_;
 
-  my $clone_method = $args{method};
+  if (my $clone_method = $args{method}) {
+    install clone_method => sub { $clone_method };
+  }
 
-  install clone_method => sub { $clone_method };
+  if (%args) {
+    require MooX::CloneWith::Role::GenerateAccessor::Variant;
+    my $ag_role = MooX::CloneWith::Role::GenerateAccessor::Variant->build_variant(%args);
+    install clone_accessor_generator_role => sub { $ag_role };
+  }
+
   with 'MooX::CloneWith::Role::GenerateConstructor';
 }
 
