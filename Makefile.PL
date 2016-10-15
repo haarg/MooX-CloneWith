@@ -14,7 +14,8 @@ my %META = (
     } },
     runtime => {
       requires => {
-        'Moo' => 0,
+        'Moo' => 2.002002,
+        'Params::Variant' => 1.002,
       },
     },
     develop => { requires => {
