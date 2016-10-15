@@ -1,5 +1,6 @@
 package MooX::CloneWith::Role::GenerateAccessor;
-use Sub::Quote qw(quotify sanitize_identifier);
+use Sub::Quote qw(sanitize_identifier);
+use Scalar::Util qw(blessed);
 use Carp;
 use Moo::Role;
 
@@ -61,7 +62,7 @@ sub _generate_clone_type_clone {
     return
         !$vtype ? $v
       : $vtype eq "Regexp" ? $v
-      : Scalar::Util::blessed($v) ? (
+      : blessed($v) ? (
           ( $clone_method ne 'clone_with' && $v->can($clone_method) ) ? $v->$clone_method
         : $v->can("clone_with")  ? $v->clone_with
         : $v->can("clone")       ? $v->clone
@@ -87,7 +88,7 @@ sub _generate_clone_type_deep {
       my $v = $$vref = $clone->($$vref);
       my $vtype = ref $v;
       push @clone,
-        Scalar::Util::blessed($v) ? ()
+        blessed($v) ? ()
         : $vtype eq "ARRAY" ? \(@$v)
         : $vtype eq "HASH"  ? \(values %$v)
         : $vtype eq "REF"   ? $v

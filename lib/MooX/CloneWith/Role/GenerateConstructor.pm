@@ -1,5 +1,5 @@
 package MooX::CloneWith::Role::GenerateConstructor;
-use Sub::Quote qw(quote_sub unquote_sub quotify sanitize_identifier);
+use Sub::Quote qw(quote_sub quotify);
 use Sub::Defer qw(defer_sub);
 use Carp;
 use Moo::Role;
