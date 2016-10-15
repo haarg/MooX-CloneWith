@@ -1,4 +1,4 @@
-package Method::Generate::Constructor::Role::CloneWith;
+package MooX::CloneWith::Role::GenerateConstructor;
 use Sub::Quote qw(quote_sub unquote_sub);
 use Sub::Defer qw(defer_sub);
 use Moo::Role;

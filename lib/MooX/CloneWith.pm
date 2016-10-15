@@ -16,9 +16,9 @@ sub import {
 
   my $c = Moo->_constructor_maker_for($target);
 
-  my $role = !@opts ? 'Method::Generate::Constructor::Role::CloneWith' : do {
-    require Method::Generate::Constructor::Role::CloneWith::Variant;
-    Method::Generate::Constructor::Role::CloneWith::Variant->build_variant(@opts);
+  my $role = !@opts ? 'MooX::CloneWith::Role::GenerateConstructor' : do {
+    require MooX::CloneWith::Role::GenerateConstructor::Variant;
+    MooX::CloneWith::Role::GenerateConstructor::Variant->build_variant(@opts);
   };
 
   Moo::Role->apply_roles_to_object($c, $role);

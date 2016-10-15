@@ -1,5 +1,6 @@
-package Method::Generate::Constructor::Role::CloneWith::Variant;
-use strictures 1;
+package MooX::CloneWith::Role::GenerateConstructor::Variant;
+use strict;
+use warnings;
 
 use Package::Variant 1.002
   importing => ['Moo::Role'],
@@ -12,7 +13,7 @@ sub make_variant {
   my $clone_method = $args{method};
 
   install clone_method => sub { $clone_method };
-  with 'Method::Generate::Constructor::Role::CloneWith';
+  with 'MooX::CloneWith::Role::GenerateConstructor';
 }
 
 1;
