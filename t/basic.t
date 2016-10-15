@@ -39,6 +39,7 @@ use Test::Fatal;
       buzz => {},
     },
   );
+  $o->baz->{buzz}{guff} = $o->baz->{buzz};
   my $o2 = $o->clone_with;
   is $o->foo, $o2->foo, 'normal cloned attribute uses same reference';
   isnt $o->bar, $o2->bar, 'shallow cloned attribute gets new reference';
@@ -47,6 +48,10 @@ use Test::Fatal;
   isnt $o->baz, $o2->baz, 'deep cloned attribute gets new reference';
   isnt $o->baz->{buzz}, $o2->baz->{buzz},
     'deep cloned attribute inner refs get new reference';
+  is $o2->baz->{buzz}{guff}, $o2->baz->{buzz},
+    'deep cloned attribute preserves ref loops';
+  delete $o->baz->{buzz}{guff};
+  delete $o2->baz->{buzz}{guff};
 }
 
 {

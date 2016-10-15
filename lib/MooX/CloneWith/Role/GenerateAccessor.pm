@@ -1,6 +1,6 @@
 package MooX::CloneWith::Role::GenerateAccessor;
 use Sub::Quote qw(sanitize_identifier);
-use Scalar::Util qw(blessed);
+use Scalar::Util qw(refaddr blessed);
 use Carp;
 use Moo::Role;
 
@@ -81,11 +81,17 @@ sub _generate_clone_type_clone {
 sub _generate_clone_type_deep {
   my ($self, $attr) = @_;
   my $clone = $self->_generate_clone_type_clone($attr);
+  my %cache;
   sub {
     my $vo = shift;
     my @clone = (\$vo);
     while (my $vref = pop @clone) {
-      my $v = $$vref = $clone->($$vref);
+      my $va = refaddr $$vref;
+      if (exists $cache{$va}) {
+        $$vref = $cache{$va};
+        next;
+      }
+      my $v = $cache{$va} = $$vref = $clone->($$vref);
       my $vtype = ref $v;
       push @clone,
         blessed($v) ? ()

@@ -26,7 +26,7 @@ sub install_delayed_clone {
   my $clone_method = $self->clone_method;
   defer_sub "${package}::${clone_method}" => sub {
     $self->_generate_clone_method(
-      $package, $clone_method, $self->{attribute_specs}, { no_defer => 1 },
+      $package, $clone_method, $self->{attribute_specs}, { no_defer => 1, no_install => 1 },
     );
   };
 };
