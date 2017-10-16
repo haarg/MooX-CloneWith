@@ -1,7 +1,7 @@
 package MooX::CloneWith::Role::GenerateAccessor;
 use Sub::Quote qw(sanitize_identifier);
 use Scalar::Util qw(refaddr blessed);
-use Carp;
+use Carp qw(croak);
 use Moo::Role;
 
 sub clone_method { 'clone_with' }
@@ -9,12 +9,15 @@ sub default_clone_type { 'copy' }
 
 before generate_method => sub {
   my ($self, $into, $name, $spec, $quote_opts) = @_;
+  my $clone = exists $spec->{clone} ? $spec->{clone}
+    : $self->default_clone_type;
+
   $spec->{clone}
-    = !exists $spec->{clone} ? $self->default_clone_type
-    : !$spec->{clone}        ? 0
-    : $spec->{clone} eq 1    ? 'copy'
-    : ($spec->{clone} eq 'copy' || $spec->{clone} eq 'clone' || $spec->{clone} eq 'deep') ? $spec->{clone}
-    : croak "Unknown clone type $spec->{clone} for $name";
+    : !$clone     ? undef
+    : $clone eq 1 ? 'copy'
+    : ($clone eq 'copy' || $clone eq 'clone' || $clone eq 'deep' ) ? $clone
+    : (ref $clone && do { local $@; eval { \&{ $clone } } }) ? $clone
+    : croak "Unknown clone type $clone for $name";
 };
 
 sub generate_clone {
