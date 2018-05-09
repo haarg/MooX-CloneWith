@@ -9,13 +9,13 @@ my %META = (
     configure => { requires => { } },
     build => { requires => { } },
     test => { requires => {
-      'Test::More' => 0,
+      'Test::More' => '0.88',
       'Test::Fatal' => 0,
     } },
     runtime => {
       requires => {
-        'Moo' => 2.002002,
-        'Package::Variant' => 1.002,
+        'Moo' => '2.002002',
+        'Package::Variant' => '1.002',
       },
     },
     develop => { requires => {
