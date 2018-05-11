@@ -13,7 +13,7 @@ before generate_method => sub {
     : $self->default_clone_type;
 
   $spec->{clone}
-    : !$clone     ? undef
+    = !$clone     ? undef
     : $clone eq 1 ? 'copy'
     : ($clone eq 'copy' || $clone eq 'clone' || $clone eq 'deep' ) ? $clone
     : (ref $clone && do { local $@; eval { \&{ $clone } } }) ? $clone
